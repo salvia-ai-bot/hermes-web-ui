@@ -106,7 +106,6 @@ export interface BuildContextInput {
     roomName: string
     memberNames: string[]
     members: MemberInfo[]
-    otherAgents?: Array<{ name: string; description: string }>
     upstream: string
     apiKey: string | null
     currentMessage: StoredMessage

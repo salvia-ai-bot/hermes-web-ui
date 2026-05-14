@@ -227,12 +227,6 @@ class AgentClient {
                     const memberNames = roomMembers.map((m: any) => m.name)
                     const members = roomMembers.map((m: any) => ({ userId: m.userId, name: m.name, description: m.description }))
 
-                    // Get room agents (other agents in the room)
-                    const roomAgents = this.storage.getRoomAgents(roomId) || []
-                    const otherAgents = roomAgents
-                        .filter((a: any) => a.name !== this.name)
-                        .map((a: any) => ({ name: a.name, description: a.description || '' }))
-
                     // Get room compression config
                     const roomInfo = this.storage.getRoom(roomId)
                     const compression = roomInfo ? {
@@ -250,7 +244,6 @@ class AgentClient {
                         roomName: roomId,
                         memberNames,
                         members,
-                        otherAgents,
                         upstream,
                         apiKey,
                         currentMessage: msg,
