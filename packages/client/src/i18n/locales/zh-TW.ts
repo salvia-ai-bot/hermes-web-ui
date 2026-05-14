@@ -962,6 +962,8 @@ export default {
     compressionSaved: '壓縮設定已儲存',
     compressNow: '立即壓縮',
     compressingInProgress: '正在壓縮中，請稍後',
+    proactiveChat: '主動對話模式',
+    proactiveChatDesc: '開啟後 AI Agent 能主動回應群聊，不僅是被 @ 才回應',
   },
 
   // 用量統計

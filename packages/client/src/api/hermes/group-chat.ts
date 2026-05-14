@@ -11,6 +11,7 @@ export interface RoomInfo {
     maxHistoryTokens?: number
     tailMessageCount?: number
     totalTokens?: number
+    proactiveChat?: boolean
 }
 
 export interface RoomAgent {
@@ -117,6 +118,7 @@ export async function createRoom(data: {
     inviteCode: string
     agents?: { profile: string; name?: string; description?: string; invited?: boolean }[]
     compression?: { triggerTokens?: number; maxHistoryTokens?: number; tailMessageCount?: number }
+    proactiveChat?: boolean
 }): Promise<{ room: RoomInfo; agents: RoomAgent[] }> {
     return request('/api/hermes/group-chat/rooms', {
         method: 'POST',
@@ -174,7 +176,7 @@ export async function deleteRoom(roomId: string): Promise<void> {
     })
 }
 
-export async function updateRoomConfig(roomId: string, config: { triggerTokens?: number; maxHistoryTokens?: number; tailMessageCount?: number }): Promise<{ room: RoomInfo }> {
+export async function updateRoomConfig(roomId: string, config: { triggerTokens?: number; maxHistoryTokens?: number; tailMessageCount?: number; proactiveChat?: boolean }): Promise<{ room: RoomInfo }> {
     return request(`/api/hermes/group-chat/rooms/${roomId}/config`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

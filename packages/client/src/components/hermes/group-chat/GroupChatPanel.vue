@@ -18,7 +18,7 @@ const showSidebar = ref(window.innerWidth > 768)
 const showCreateModal = ref(false)
 const showAddAgentModal = ref(false)
 const showCompressionModal = ref(false)
-const compressionConfig = ref({ triggerTokens: 100000, maxHistoryTokens: 32000, tailMessageCount: 20 })
+const compressionConfig = ref({ triggerTokens: 100000, maxHistoryTokens: 32000, tailMessageCount: 20, proactiveChat: false })
 const isCompressing = ref(false)
 const selectedProfile = ref<string | null>(null)
 const agentName = ref('')
@@ -120,6 +120,7 @@ function handleOpenCompressionConfig() {
             triggerTokens: room.triggerTokens ?? 100000,
             maxHistoryTokens: room.maxHistoryTokens ?? 32000,
             tailMessageCount: room.tailMessageCount ?? 20,
+            proactiveChat: room.proactiveChat ?? false,
         }
     }
     showCompressionModal.value = true
@@ -387,6 +388,13 @@ watch(() => store.sortedMessages.length, async () => {
                         <label class="form-label">{{ t('groupChat.tailMessageCount') }}</label>
                         <NInputNumber v-model:value="compressionConfig.tailMessageCount" :min="1" :step="5" style="width: 100%" />
                         <p class="form-hint">{{ t('groupChat.tailMessageCountDesc') }}</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ t('groupChat.proactiveChat') }}</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" v-model="compressionConfig.proactiveChat" style="width: 18px; height: 18px;" />
+                            <span style="font-size: 13px;">{{ t('groupChat.proactiveChatDesc') }}</span>
+                        </div>
                     </div>
                     <div style="margin-top: 8px">
                         <NButton

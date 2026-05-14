@@ -87,6 +87,7 @@ export class ContextEngine {
             agentDescription: input.agentDescription,
             memberNames: input.memberNames,
             members: input.members,
+            otherAgents: input.otherAgents,
         })
 
         const meta: CompressedContext['meta'] = {

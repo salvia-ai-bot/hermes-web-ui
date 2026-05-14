@@ -962,6 +962,8 @@ export default {
     compressionSaved: 'Compression config saved',
     compressNow: 'Compress Now',
     compressingInProgress: 'Compression in progress, please wait',
+    proactiveChat: 'Proactive Chat Mode',
+    proactiveChatDesc: 'When enabled, AI agents can proactively respond to group chat, not just when mentioned',
   },
 
   // Usage

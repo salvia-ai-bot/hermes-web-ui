@@ -227,6 +227,12 @@ class AgentClient {
                     const memberNames = roomMembers.map((m: any) => m.name)
                     const members = roomMembers.map((m: any) => ({ userId: m.userId, name: m.name, description: m.description }))
 
+                    // Get room agents (other agents in the room)
+                    const roomAgents = this.storage.getRoomAgents(roomId) || []
+                    const otherAgents = roomAgents
+                        .filter((a: any) => a.name !== this.name)
+                        .map((a: any) => ({ name: a.name, description: a.description || '' }))
+
                     // Get room compression config
                     const roomInfo = this.storage.getRoom(roomId)
                     const compression = roomInfo ? {
@@ -244,6 +250,7 @@ class AgentClient {
                         roomName: roomId,
                         memberNames,
                         members,
+                        otherAgents,
                         upstream,
                         apiKey,
                         currentMessage: msg,
@@ -619,22 +626,36 @@ export class AgentClients {
     /**
      * Server-side: parse @mentions and forward to matching agents directly.
      * If the room is already processing (compressing/replying), queue the mention.
+     * When proactiveChat is enabled, agents also listen to all messages and decide whether to respond.
      */
-    async processMentions(roomId: string, msg: { content: string; senderName: string; senderId: string; timestamp: number }): Promise<void> {
+    async processMentions(roomId: string, msg: { content: string; senderName: string; senderId: string; timestamp: number }, proactiveChat: boolean = false): Promise<void> {
         if (!this._gatewayManager) return
 
         const content = msg.content.toLowerCase()
         const agents = this.getAgents(roomId)
 
+        // 1. Handle direct @mentions
         const mentioned = agents.filter(a => content.includes(`@${a.name.toLowerCase()}`))
-        if (mentioned.length === 0) return
+        if (mentioned.length > 0) {
+            logger.debug(`[AgentClients] ${mentioned.map(a => a.name).join(', ')} mentioned by ${msg.senderName}`)
+            for (const agent of mentioned) {
+                this._processAgentMention(roomId, agent, msg).catch((err) => {
+                    logger.error(`[AgentClients] error processing mention for ${agent.name}: ${err.message}`)
+                })
+            }
+        }
 
-        logger.debug(`[AgentClients] ${mentioned.map(a => a.name).join(', ')} mentioned by ${msg.senderName}`)
-
-        for (const agent of mentioned) {
-            this._processAgentMention(roomId, agent, msg).catch((err) => {
-                logger.error(`[AgentClients] error processing mention for ${agent.name}: ${err.message}`)
-            })
+        // 2. When proactiveChat is enabled, let un-mentioned agents also decide whether to respond
+        if (proactiveChat && mentioned.length === 0) {
+            const others = agents.filter(a => !mentioned.includes(a))
+            if (others.length > 0) {
+                logger.debug(`[AgentClients] proactiveChat: ${others.map(a => a.name).join(', ')} listening to ${msg.senderName}`)
+                for (const agent of others) {
+                    this._processAgentMention(roomId, agent, msg).catch((err) => {
+                        logger.error(`[AgentClients] error processing proactive mention for ${agent.name}: ${err.message}`)
+                    })
+                }
+            }
         }
     }
 

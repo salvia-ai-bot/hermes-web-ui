@@ -25,11 +25,12 @@ groupChatRoutes.post('/api/hermes/group-chat/rooms', async (ctx) => {
         return
     }
 
-    const { name, inviteCode, agents, compression } = ctx.request.body as {
+    const { name, inviteCode, agents, compression, proactiveChat } = ctx.request.body as {
         name?: string
         inviteCode?: string
         agents?: { profile: string; name?: string; description?: string; invited?: boolean }[]
         compression?: { triggerTokens?: number; maxHistoryTokens?: number; tailMessageCount?: number }
+        proactiveChat?: boolean
     }
     if (!name || !inviteCode) {
         ctx.status = 400
@@ -39,7 +40,7 @@ groupChatRoutes.post('/api/hermes/group-chat/rooms', async (ctx) => {
 
     const roomId = generateId()
     const storage = chatServer.getStorage()
-    storage.saveRoom(roomId, name, inviteCode, compression)
+    storage.saveRoom(roomId, name, inviteCode, { ...compression, proactiveChat })
 
     // Save agents to DB and auto-connect via Socket.IO
     const addedAgents = []
@@ -227,13 +228,14 @@ groupChatRoutes.put('/api/hermes/group-chat/rooms/:roomId/config', async (ctx) =
     }
 
     const roomId = ctx.params.roomId
-    const { triggerTokens, maxHistoryTokens, tailMessageCount } = ctx.request.body as {
+    const { triggerTokens, maxHistoryTokens, tailMessageCount, proactiveChat } = ctx.request.body as {
         triggerTokens?: number
         maxHistoryTokens?: number
         tailMessageCount?: number
+        proactiveChat?: boolean
     }
 
-    chatServer.getStorage().updateRoomConfig(roomId, { triggerTokens, maxHistoryTokens, tailMessageCount })
+    chatServer.getStorage().updateRoomConfig(roomId, { triggerTokens, maxHistoryTokens, tailMessageCount, proactiveChat })
     const room = chatServer.getStorage().getRoom(roomId)
     ctx.body = { room }
 })

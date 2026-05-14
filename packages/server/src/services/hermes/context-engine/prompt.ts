@@ -9,6 +9,7 @@ interface AgentInstructionsParams {
     agentDescription: string
     memberNames: string[]
     members: MemberInfo[]
+    otherAgents?: Array<{ name: string; description: string }>
 }
 
 export function buildAgentInstructions(params: AgentInstructionsParams): string {
@@ -44,12 +45,18 @@ export function buildAgentInstructions(params: AgentInstructionsParams): string 
         ? params.agentDescription
         : '专业的 AI 助手，随时准备协助解决问题。'
 
+    // Build other agents section
+    let otherAgentsSection = ''
+    if (params.otherAgents && params.otherAgents.length > 0) {
+        otherAgentsSection = `\n\n群聊中的其他 AI Agent（你可以用 @名字 呼叫他們）：\n${params.otherAgents.map(a => a.description ? `- @${a.name}: ${a.description}` : `- @${a.name}`).join('\n')}`
+    }
+
     const basePrompt = `你是"${params.agentName}"，群聊房间"${params.roomName}"中的 AI 助手。
 
 你的角色：${roleDescription}
 
 当前房间成员：
-${memberSection}
+${memberSection}${otherAgentsSection}
 
 规则：
 - 有人用 @${params.agentName} 提及你时才需要回复，重点回应提及你的人。

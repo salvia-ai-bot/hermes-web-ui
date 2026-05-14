@@ -117,6 +117,7 @@ export const GC_ROOMS_SCHEMA: Record<string, string> = {
   maxHistoryTokens: 'INTEGER NOT NULL DEFAULT 32000',
   tailMessageCount: 'INTEGER NOT NULL DEFAULT 20',
   totalTokens: 'INTEGER NOT NULL DEFAULT 0',
+  proactiveChat: 'INTEGER NOT NULL DEFAULT 0',
 }
 
 export const GC_MESSAGES_TABLE = 'gc_messages'
